@@ -118,6 +118,7 @@ define('table_emergency_numbers' , 'emergency_numbers');
 define('table_packages', 'packages');
 define('table_subscriptions', 'subscriptions');
 //////////////////////////////////////////////////////////
+define('key_baseurl', 'baseUrl');
 define('key_inserted','inserted');
 define('key_status', 'status');
 define('key_message','message');

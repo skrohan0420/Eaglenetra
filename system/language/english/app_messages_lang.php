@@ -12,6 +12,8 @@ $lang[text_otp_matched] = 'OTP matched';
 $lang[text_user_already_exist] = 'user already exist';
 $lang[text_user_not_exist] = 'user does not exist';
 
+
+$lang[text_base_url_found_successfully] = 'base url found successfully';
 $lang[text_registration_successfull] = 'registration successfull';
 $lang[text_registration_failed] = 'registration failed';
 $lang[text_name_required] = 'Name Required';

@@ -324,8 +324,7 @@ $config['rest_keys_table'] = 'keys';
 |
 */
 $config['rest_enable_keys'] = true;
-$config['rest_enable_platform'] = true;
-$config['rest_enable_deviceid'] = true;
+$config['rest_enable_platform'] = false;
 $config['rest_allowed_platforms'] = ['android', 'ios', 'web'];
 /*
 |--------------------------------------------------------------------------

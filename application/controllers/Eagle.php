@@ -53,6 +53,20 @@ class Eagle extends RestController{
         return ($this->lang->line($str));
     }
 
+    private function baseUrl(){
+        $resp = function($data){
+            $data_final = [
+                key_status => $data[0],
+                key_message => $data[1],
+                key_baseurl => $data[2]
+            ];
+            return $data_final;
+        };
+        $message = $this->lang_message(text_base_url_found_successfully);
+        $response = [true, $message, base_url()];
+        return $this->final_response($resp, $response);
+    }
+
     private function splashScreen(){
         $resp = function($data){
             $data_final = [
@@ -673,8 +687,11 @@ class Eagle extends RestController{
 
 
 
-
-
+    public function  baseUrl_get(){
+        $response = $this->baseUrl();
+        $this->response($response[DATA], $response[HTTP_STATUS]);
+    }
+    
 
     public function  getSubscriptionStatus_get($smartCardId){
         $response = $this->getSubscriptionStatus($smartCardId);
