@@ -93,7 +93,7 @@ define('header_allow_methods', "Access-Control-Allow-Methods: GET, POST, OPTIONS
 define('helper_form', 'form');
 define('helper_url', 'url');
 //////////////////////////////////////////////////////////
-define('base_url','http://localhost/eaglenetra/');
+define('base_url','https://www.v-xplore.com/dev/rohan/eagle_netra_api/');
 /////////////////////////////////////////////////////////
 define('lang_app_message', 'app_messages');
 //////////////////////////////////////////////////////////

@@ -26,7 +26,7 @@ class Eagle_model extends CI_Model {
         $query = $query->result_array();
 
         foreach($query as $key=>$val){
-            $query[$key]['image'] = base_url . $val[field_image];
+            $query[$key]['image'] = base_url($val[field_image]);
         }
         return $query;
     }
@@ -440,9 +440,6 @@ class Eagle_model extends CI_Model {
             return true;
         }
         return false;
-        
-
-
     }
 
     public function addPackage($price, $validity){

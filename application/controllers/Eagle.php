@@ -714,7 +714,7 @@ class Eagle extends RestController{
     }
 
     public function getPackages_get(){
-        $response =$this->getPackages();
+        $response = $this->getPackages();
         $this->response($response[DATA], $response[HTTP_STATUS]);
     }
 

@@ -54,5 +54,38 @@ $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
 
-$route['EagleNetra/eagle/addSmartCardDetails/(:any)'] = 'EagleNetra/eagle/addSmartCardDetails/$1';
+$route['baseurl']                           = 'eagle/baseUrl';
+$route['splashdata']                        = 'eagle/splashScreen';
+$route['signin']                            = 'eagle/signIn';
+$route['otp']                               = 'eagle/validateOtp';
+$route['smartcard/(:any)/insert']           = 'eagle/addSmartCardDetails/$1';
+$route['smartcard/(:any)/show']             = 'eagle/getKidsData/$1';
+$route['user/(:any)/show']                  = 'eagle/getUserDetails/$1';
+$route['user/(:any)/insert']                = 'eagle/completeRegistration/$1';
+$route['user/(:any)/secondary/insert']      = 'eagle/addSecondaryParent/$1';
+$route['user/(:any)/safearea/show']         = 'eagle/getSafeArea/$1';
+$route['user/(:any)/safearea/insert']       = 'eagle/setSafeArea/$1';
+$route['user/safearea/(:any)/status']       = 'eagle/setSafeAreaStatus/$1';
+$route['smartcard/(:any)/location/insert']  = 'eagle/setLocation/$1';
+$route['smartcard/(:any)/location/show']    = 'eagle/getLocation/$1';
+$route['smartcard/(:any)/location/history'] = 'eagle/getLocationHistory/$1';
+$route['subscription/(:any)/buy/(:any)']    = 'eagle/setSubscription/$1/$2';
+$route['subscription/(:any)/status/update'] = 'eagle/setSubscriptionStatus/$1';
+$route['subscription/(:any)/status/show']   = 'eagle/getSubscriptionStatus/$1';
+$route['package/(:any)']                    = 'eagle/getSinglePackage/$1';
+
+
+// --------- NOTWORKING --------- //
+
+
+$route['package/insert']                    = 'eagle/addPackage';
+$route['package/show']                      = 'eagle/getPackages';
+
+
+
+
+
+
+
+
 ?>
