@@ -54,6 +54,8 @@ $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
 
+
+
 $route['baseurl']                           = 'eagle/baseUrl';
 $route['splashdata']                        = 'eagle/splashScreen';
 $route['signin']                            = 'eagle/signIn';
@@ -75,11 +77,13 @@ $route['subscription/(:any)/status/show']   = 'eagle/getSubscriptionStatus/$1';
 $route['package/(:any)']                    = 'eagle/getSinglePackage/$1';
 
 
-// --------- NOTWORKING --------- //
+// --------- NOT WORKING --------- //
+//  | | | | | | | | | | | | | | |  //
+//  \:/:\:/:\:/:\/:\:/:\:/:\:/:\:/ //
 
 
-$route['package/insert']                    = 'eagle/addPackage';
-$route['package/show']                      = 'eagle/getPackages';
+// $route['package/insert']                    = 'eagle/addPackage';
+// $route['package/show']                      = 'eagle/getPackages';
 
 
 
