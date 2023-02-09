@@ -88,7 +88,8 @@ class Eagle extends RestController{
             $data_final = [
                 key_status => $data[0],
                 key_message => $data[1],
-                key_otp => $data[2]
+                key_otp => $data[2],
+                key_isSend => $data[0]
             ];
             return $data_final;
         };
@@ -116,8 +117,10 @@ class Eagle extends RestController{
         $resp = function($data){
             $data_final = [
                 key_status => $data[0],
+                key_userStatus =>$data[3],
                 key_message => $data[1],
-                key_id =>  $data[2]
+                key_userId =>  $data[2],
+                key_isVerified => $data[3]
             ];
             return $data_final;
         };
@@ -129,12 +132,14 @@ class Eagle extends RestController{
 			return $this->final_response($resp,$response);
 		}
         $this->initializeEagleModel();
+        
+        $isregistered = $this->Eagle_model->registered($number);
 
         $result = $this->Eagle_model->validateOtp($number,$otp);
         $message = '';
         $message = $result ? $this->lang_message(text_otp_matched) : $this->lang_message(text_otp_not_matched);
 
-        $response = [true , $message, $result];
+        $response = [true , $message, $result, $isregistered];
         return $this->final_response($resp,$response);
     }
 
@@ -797,4 +802,6 @@ class Eagle extends RestController{
 
 
 }
+
+
 ?>

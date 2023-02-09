@@ -140,6 +140,10 @@ define('key_allowed_types', 'allowed_types');
 define('key_description', 'description');
 define('key_safe_area_status', 'safe_area_status');
 define('key_subscription_data', 'subscription_data');
+define('key_isSend', 'isSend');
+define('key_userId', 'userId');
+define('key_userStatus',  'userStatus');
+define('key_isVerified','isVerified');
 //////////////////////////////////////////////////////////
 define('text_base_url_found_successfully', 'base_url_found_successfully');
 define('text_record_found', 'record_found');

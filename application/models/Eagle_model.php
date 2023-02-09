@@ -124,17 +124,17 @@ class Eagle_model extends CI_Model {
             return null;
         }
         $id = $this->db
-        ->select('uid as id')
-        ->where('phone_number',$number)
-        ->get(table_user);
+                    ->select('uid as id')
+                    ->where('phone_number',$number)
+                    ->get(table_user);
 
         $id = $id->result_array();
         $id = $id = $id[0]['id'];
 
         $otpDb = $this->db
-        ->select('otp')
-        ->where('user_id' , $id)
-        ->get(table_otp);
+                    ->select('otp')
+                    ->where('user_id' , $id)
+                    ->get(table_otp);
         $otpDb = $otpDb->result_array();
         $otpDb = $otpDb[0]['otp'];
 
@@ -143,10 +143,32 @@ class Eagle_model extends CI_Model {
         }else{
             return null;
         }
-       
-
-        
     }
+
+    public function isUserExists($number, $otp){
+        if(strlen($number) > 10 || strlen($number) < 10 ){
+            return false;
+        }
+        $name = $this->db
+                        ->select('user.name')
+                        ->from('user')
+                        ->join('otp', 'otp.user_id = user.uid')
+                        ->where('user.phone_number', $number)
+                        ->where('otp.otp', $otp)
+                        ->get();
+
+        $name = $name->result_array();
+        $name = $name[0];
+
+        if(!empty($name)){
+            return false;
+        }else{
+            return true;
+        }
+
+
+    }
+
 
     public function addSmartCardDetails($name, $user_id, $cardNumber, $deviceId, $class, $age, $numbers, $img){
         
