@@ -89,27 +89,28 @@ class Eagle extends RestController{
                 key_status => $data[0],
                 key_message => $data[1],
                 key_otp => $data[2],
-                key_isSend => $data[0]
+                key_isSend => $data[3]
             ];
             return $data_final;
         };
+        $isOTPsend = false;
         $this->initializeEagleModel();
         $number = $this->input->post(param_phone_number);
 		if(!preg_match("/^[6-9]\d{9}$/", $number)){
 			$message =  $this->lang_message(text_invalid_pnone_number);    
-			$response = [true , $message , false];
+			$response = [true , $message , false, $isOTPsend];
 			return $this->final_response($resp,$response);
 		}
 		$isregistered = $this->Eagle_model->registered($number);
 		if(!$isregistered){
 			$otp = strval($this->newotp());
 			$uid = 'USER_' . $this->new_uid();
-			$this->Eagle_model->addNumOtp($number, $otp, $uid);
+			$isOTPsend = $this->Eagle_model->addNumOtp($number, $otp, $uid);
 		}
 		$otp = $this->Eagle_model->getOtp($number);
 		$otp = $otp[0][key_otp];
 		$message = $isregistered ? $this->lang_message(text_user_already_exist) : $this->lang_message(text_new_user);
-		$response = [true , $message , $otp];
+		$response = [true , $message , $otp, $isOTPsend];
 		return $this->final_response($resp,$response);     
     }
 
@@ -117,7 +118,7 @@ class Eagle extends RestController{
         $resp = function($data){
             $data_final = [
                 key_status => $data[0],
-                key_userStatus =>$data[3],
+                key_userStatus => $data[3] ? 'REGISTERED': 'UNREGISTERED',
                 key_message => $data[1],
                 key_userId =>  $data[2],
                 key_isVerified => $data[3]
@@ -133,13 +134,14 @@ class Eagle extends RestController{
 		}
         $this->initializeEagleModel();
         
-        $isregistered = $this->Eagle_model->registered($number);
+        $isRegistered = $this->Eagle_model->isUserExists($number, $otp);
+
 
         $result = $this->Eagle_model->validateOtp($number,$otp);
         $message = '';
         $message = $result ? $this->lang_message(text_otp_matched) : $this->lang_message(text_otp_not_matched);
 
-        $response = [true , $message, $result, $isregistered];
+        $response = [true , $message, $result, $isRegistered];
         return $this->final_response($resp,$response);
     }
 

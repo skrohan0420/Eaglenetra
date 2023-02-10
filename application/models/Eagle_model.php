@@ -70,7 +70,8 @@ class Eagle_model extends CI_Model {
         $userData = array(
             'uid' => $uid,
             'user_type' => 'user_primary',
-            'phone_number' => $number
+            'phone_number' => $number,
+            'status' => 'PENDING'
         );
         $otpData = array(
             'user_id' => $uid,
@@ -79,6 +80,9 @@ class Eagle_model extends CI_Model {
         );
         $otpQuery = $this->db->insert(table_otp, $otpData);
         $userQuery = $this->db->insert(table_user, $userData);
+
+        return $otpQuery? true : false;
+
     }
 
     public function getOtp($number){
@@ -109,7 +113,8 @@ class Eagle_model extends CI_Model {
             'name' => $name,
             'email' => $email,
             'tracking_for_id' =>  $trackingForId,
-            'image' => $base_img
+            'image' => $base_img,
+            'status' => 'ACTIVE'
         );
 
         $setData = $this->db->where('uid' , $id)->update(table_user, $userData); 
@@ -149,24 +154,19 @@ class Eagle_model extends CI_Model {
         if(strlen($number) > 10 || strlen($number) < 10 ){
             return false;
         }
-        $name = $this->db
-                        ->select('user.name')
+        $status = $this->db
+                        ->select('user.status')
                         ->from('user')
                         ->join('otp', 'otp.user_id = user.uid')
                         ->where('user.phone_number', $number)
                         ->where('otp.otp', $otp)
                         ->get();
 
-        $name = $name->result_array();
-        $name = $name[0];
+        $status = $status->result_array();
+        $status = $status[0]['status'];
 
-        if(!empty($name)){
-            return false;
-        }else{
-            return true;
-        }
-
-
+        
+        return $status == 'ACTIVE' ? true : false ;
     }
 
 
