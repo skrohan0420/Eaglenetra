@@ -98,19 +98,19 @@ class Eagle extends RestController{
         $number = $this->input->post(param_phone_number);
 		if(!preg_match("/^[6-9]\d{9}$/", $number)){
 			$message =  $this->lang_message(text_invalid_pnone_number);    
-			$response = [true , $message , false, $isOTPsend];
+			$response = [true , $message , "", $isOTPsend];
 			return $this->final_response($resp,$response);
 		}
 		$isregistered = $this->Eagle_model->registered($number);
 		if(!$isregistered){
 			$otp = strval($this->newotp());
 			$uid = 'USER_' . $this->new_uid();
-			$isOTPsend = $this->Eagle_model->addNumOtp($number, $otp, $uid);
+			$this->Eagle_model->addNumOtp($number, $otp, $uid);
 		}
 		$otp = $this->Eagle_model->getOtp($number);
 		$otp = $otp[0][key_otp];
 		$message = $isregistered ? $this->lang_message(text_user_already_exist) : $this->lang_message(text_new_user);
-		$response = [true , $message , $otp, $isOTPsend];
+		$response = [true , $message , $otp, true];
 		return $this->final_response($resp,$response);     
     }
 
@@ -125,16 +125,17 @@ class Eagle extends RestController{
             ];
             return $data_final;
         };
+        $this->initializeEagleModel();
         $number = $this->input->get(query_param_phone_number);
         $otp = $this->input->get(query_param_otp);
+        $isRegistered = $this->Eagle_model->isUserExists($number, $otp);
 		if(!preg_match("/^[6-9]\d{9}$/", $number)){
 			$message =  $this->lang_message(text_invalid_pnone_number);    
-			$response = [true , $message , false];
+			$response = [true , $message , false, $isRegistered];
 			return $this->final_response($resp,$response);
 		}
-        $this->initializeEagleModel();
+       
         
-        $isRegistered = $this->Eagle_model->isUserExists($number, $otp);
 
 
         $result = $this->Eagle_model->validateOtp($number,$otp);
