@@ -142,7 +142,7 @@ class Eagle extends RestController{
         $message = '';
         $message = $result ? $this->lang_message(text_otp_matched) : $this->lang_message(text_otp_not_matched);
 
-        $response = [true , $message, $result, $isRegistered];
+        $response = [true , $message, $result, true];
         return $this->final_response($resp,$response);
     }
 
