@@ -198,7 +198,7 @@ class Eagle extends RestController{
             $data_final = [
                 key_status => $data[0],
                 key_message => $data[1],
-                key_inserted => $data[2]
+                key_is_added => $data[2]
             ];
             return $data_final;
         };
@@ -231,7 +231,7 @@ class Eagle extends RestController{
 			$response = [true , $message , false];
 			return $this->final_response($resp,$response);
 		}
-		if(!preg_match("/^[6-9]\d{9}$/",$cardNumber)){
+		if(strlen($cardNumber) < 10 || strlen($cardNumber) > 10){
 			$message =  $this->lang_message(text_invalid_card_number);    
 			$response = [true , $message , false];
 			return $this->final_response($resp,$response);
@@ -355,7 +355,7 @@ class Eagle extends RestController{
         $userExists = $this->Eagle_model->userExists($user_id);
         if($userExists){
             $userData = $this->Eagle_model->getUserDetails($user_id);
-            $response = [true , $this->lang_message(text_record_found), $userData ];
+            $response = [true , $this->lang_message(text_record_found), $userData[0] ];
             return $this->final_response($resp,$response);
         }
         $response = [true , $this->lang_message(text_user_not_exist), null];
