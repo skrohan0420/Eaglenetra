@@ -310,7 +310,7 @@ class Eagle_model extends CI_Model {
 
     public function getUserDetails($user_id){
         $userData = $this->db
-        ->select('name , email, image')
+        ->select('name , email, image, phone_number as number')
         ->where('uid', $user_id)
         ->get(table_user);
 
