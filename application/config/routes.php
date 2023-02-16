@@ -65,8 +65,8 @@ $route['smartcard/(:any)/show']             = 'eagle/getKidsData/$1';
 $route['user/(:any)/show']                  = 'eagle/getUserDetails/$1';
 $route['user/(:any)/insert']                = 'eagle/completeRegistration/$1';
 $route['user/(:any)/secondary/insert']      = 'eagle/addSecondaryParent/$1';
-$route['user/(:any)/safearea/show']         = 'eagle/getSafeArea/$1';
-$route['user/(:any)/safearea/insert']       = 'eagle/setSafeArea/$1';
+$route['user/(:any)/(:any)/safearea/show']  = 'eagle/getSafeArea/$1/$2';
+$route['user/(:any)/(:any)/safearea/insert']= 'eagle/setSafeArea/$1/$2';
 $route['user/safearea/(:any)/status']       = 'eagle/setSafeAreaStatus/$1';
 $route['smartcard/(:any)/location/insert']  = 'eagle/setLocation/$1';
 $route['smartcard/(:any)/location/show']    = 'eagle/getLocation/$1';
@@ -78,7 +78,7 @@ $route['package/(:any)']                    = 'eagle/getSinglePackage/$1';
 
 
 // --------- NOT WORKING --------- //
-//  | | | | | | | | | | | | | | |  //
+//   | | | | | | | | | | | | | |   //
 //  \:/:\:/:\:/:\/:\:/:\:/:\:/:\:/ //
 
 

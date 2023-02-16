@@ -116,11 +116,15 @@ class Eagle extends RestController{
 
     private function vaidateOtp(){
         $resp = function($data){
+            $this->initializeEagleModel();
+            $number = $this->input->get(query_param_phone_number);
+            $otp = $this->input->get(query_param_otp);
+            $isRegistered = $this->Eagle_model->isUserExists($number, $otp);
             $data_final = [
                 key_status => $data[0],
-                key_userStatus => $data[3] ? 'REGISTERED': 'UNREGISTERED',
+                key_userStatus => $isRegistered ? 'REGISTERED': 'UNREGISTERED',
                 key_message => $data[1],
-                key_userId =>  $data[2],
+                key_userId =>  $data[2] == null ? "" :$data[2],
                 key_isVerified => $data[3]
             ];
             return $data_final;
@@ -131,18 +135,22 @@ class Eagle extends RestController{
         $isRegistered = $this->Eagle_model->isUserExists($number, $otp);
 		if(!preg_match("/^[6-9]\d{9}$/", $number)){
 			$message =  $this->lang_message(text_invalid_pnone_number);    
-			$response = [true , $message , false, $isRegistered];
+			$response = [false , $message ,'', false];
 			return $this->final_response($resp,$response);
 		}
        
         
-
-
         $result = $this->Eagle_model->validateOtp($number,$otp);
-        $message = '';
-        $message = $result ? $this->lang_message(text_otp_matched) : $this->lang_message(text_otp_not_matched);
+        $otp = $this->Eagle_model->getOtp($number);
+        // print_r($otp);
+        // die();
 
-        $response = [true , $message, $result, true];
+        $otp = $otp[0]['otp'];
+
+        $message = '';
+        $message = $result ? $this->lang_message(text_otp_matched) : $this->lang_message(text_otp_not_matched).'. Your otp is '.$otp;
+        $isVerified = $message == "OTP matched" ? true : false;
+        $response = [true , $message, $result, $isVerified];
         return $this->final_response($resp,$response);
     }
 
@@ -268,7 +276,7 @@ class Eagle extends RestController{
             $data_final = [
                 key_status => $data[0],
                 key_message => $data[1],
-                key_data => $data[2]
+                key_short_details => $data[2]
             ];
             return $data_final;
         };
@@ -283,18 +291,20 @@ class Eagle extends RestController{
         return $this->final_response($resp,$response);          
     }
 
-    private function setSafeArea($user_id){
+    private function setSafeArea($user_id, $smartCardId){
         $resp = function($data){
             $data_final = [
                 key_status => $data[0],
                 key_message => $data[1],
-                key_inserted => $data[2]
+                key_is_saved => $data[2]
             ];
             return $data_final;
         };
         $this->initializeEagleModel();
         $userExists = $this->Eagle_model->userExists($user_id);
-        if($userExists){
+        $smartCardExists = $this->Eagle_model->smartCardExists($smartCardId );
+        if($userExists && $smartCardExists){
+  
             $safeAreaName = $this->input->post(param_safe_area_name);
             $longitude = $this->input->post(param_longitude);
             $latitude = $this->input->post(param_latitude);
@@ -302,6 +312,7 @@ class Eagle extends RestController{
             $safeAreaRadius = $this->input->post(param_safe_area_radius);
             $alertOnExit = $this->input->post(param_alert_on_exit);
             $alertOnEntry = $this->input->post(param_alert_on_entry);
+
 			if(!preg_match('/^[A-Za-z]+([\ A-Za-z]+)*/', $safeAreaName)){
 				$message = $this->lang_message(text_invalid_name);
 				$response = [true ,$message,  false ];
@@ -330,7 +341,7 @@ class Eagle extends RestController{
 				!empty($address)){
                 $result = $this
                         ->Eagle_model
-                        ->setSafeArea($address,$safeAreaName,$longitude,$latitude,$alertOnExit,$alertOnEntry,$safeAreaRadius,$user_id);
+                        ->setSafeArea($address,$safeAreaName,$longitude,$latitude,$alertOnExit,$alertOnEntry,$safeAreaRadius,$user_id,$smartCardId);
                 $response = [true , $this->lang_message(text_safe_area_added), true];
                 return $this->final_response($resp,$response);
             }
@@ -363,21 +374,22 @@ class Eagle extends RestController{
         
     }
 
-    private function getSafeArea($user_id){
+    private function getSafeArea($user_id, $smartCardId){
         $resp = function($data){
             $data_final = [
                 key_status => $data[0],
                 key_message => $data[1],
-                key_data => $data[2]
+                key_area_details => $data[2]
             ];
             return $data_final;
         };
         $this->initializeEagleModel();
 
         $userExists = $this->Eagle_model->userExists($user_id);
+        $smartCardExists = $this->Eagle_model->smartCardExists($smartCardId);
 
-        if($userExists){
-            $safeAreaData = $this->Eagle_model->getSafeArea($user_id);
+        if($userExists && $smartCardExists){
+            $safeAreaData = $this->Eagle_model->getSafeArea($user_id,$smartCardId);
 
             $response = [true , $this->lang_message(text_user_exist), $safeAreaData];
             return $this->final_response($resp,$response);
@@ -391,7 +403,7 @@ class Eagle extends RestController{
             $data_final = [
                 key_status => $data[0],
                 key_message => $data[1],
-                key_safe_area_status => $data[2]
+                key_isActivated => $data[2]
             ];
             return $data_final;
         };
@@ -756,8 +768,8 @@ class Eagle extends RestController{
         $this->response($response[DATA], $response[HTTP_STATUS]);
     }
 
-    public function getSafeArea_get($user_id){
-        $response = $this->getSafeArea($user_id);
+    public function getSafeArea_get($user_id, $smartCardId){
+        $response = $this->getSafeArea($user_id, $smartCardId);
         $this->response($response[DATA], $response[HTTP_STATUS]);
     }
 
@@ -766,8 +778,8 @@ class Eagle extends RestController{
         $this->response($response[DATA], $response[HTTP_STATUS]);
     }
 
-    public function setSafeArea_post($user_id){
-        $response = $this->setSafeArea($user_id);
+    public function setSafeArea_post($user_id, $smartCardId){
+        $response = $this->setSafeArea($user_id, $smartCardId);
         $this->response($response[DATA], $response[HTTP_STATUS]);
     }
 

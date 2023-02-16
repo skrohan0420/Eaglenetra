@@ -286,6 +286,10 @@ define('key_isreset','isReset');
 define('key_subscribed', 'subscribed');
 define('key_subscription_status' ,'subscription_status');
 define('key_encrypt_name' , 'encrypt_name');
+define('key_isActivated', 'isActivated');
+define('key_short_details', 'shortDetails');
+define('key_area_details' , 'areaDetails');
+define('key_is_saved', 'isSaved');
 ///////////////////////////////////////
 
 define('constant_active','active');

@@ -98,6 +98,7 @@ class Eagle_model extends CI_Model {
         ->select('otp')
         ->where('user_id' , $id)
         ->get(table_otp);
+
         $otp = $otp->result_array();
 
         return $otp;
@@ -162,11 +163,18 @@ class Eagle_model extends CI_Model {
                         ->where('otp.otp', $otp)
                         ->get();
 
+        // print_r($status->result_array());
+        // die();
+
+        if($status->num_rows() < 1){
+            return false;
+        }
         $status = $status->result_array();
         $status = $status[0]['status'];
 
+
         
-        return $status == 'ACTIVE' ? true : false ;
+        return $status == "ACTIVE"  ? true : false ;
     }
 
 
@@ -273,29 +281,43 @@ class Eagle_model extends CI_Model {
 
     public function getKidsData($user_id){
         $kidData = $this->db
-        ->select('uid as id, name, age, class, profile_image, created_at, device_id')
-        ->where('user_id', $user_id)
-        ->get(table_smart_card);
+                    ->select('
+                            smart_card.uid as smartCardId,
+                            smart_card.name,
+                            smart_card.age,
+                            smart_card.class as clsName,
+                            smart_card.profile_image as image,
+                            smart_card.created_at as activateFrom,
+                            smart_card.device_id,
+                            subscriptions.expiry_date as expiryDate
+                        ')
+                    ->from(table_smart_card)
+                    ->join(table_subscriptions, 'subscriptions.smart_card_id = smart_card.uid', 'left')
+                    ->where('smart_card.user_id', $user_id)
+                    ->get();
 
         $kidDataNumRow = $kidData->num_rows();
         $kidData = $kidData->result_array();
 
+        // print_r($kidData);
+        // die();
         if($kidDataNumRow > 0){
             foreach($kidData as $key => $val){
-                $kidData[$key]['profile_image'] = base_url($val['profile_image']);
+                $kidData[$key]['image'] = base_url($val['image']);
             }
             return $kidData;
         }
         return false;
     }
 
-    public function setSafeArea($address,$safeAreaName,$longitude,$latitude, $alertOnExit,$alertOnEntry, $safeAreaRadius, $user_id){
+    public function setSafeArea($address,$safeAreaName,$longitude,$latitude, $alertOnExit,$alertOnEntry, $safeAreaRadius, $user_id, $smartCardId){
         $alertOnExit = $alertOnExit == 'true' ? true : false;
         $alertOnEntry = $alertOnEntry == 'true' ? true : false;
 
         $safeAreaData = array(
             'uid' => 'SAFEAREA_'.$this->new_uid(),
             'user_id' => $user_id,
+            'smart_card_id' => $smartCardId,
             'safe_area_name' => $safeAreaName,
             'longitude' => $longitude,
             'latitude' => $latitude,
@@ -327,9 +349,17 @@ class Eagle_model extends CI_Model {
         }
     }
 
-    public function getSafeArea($user_id){
+    public function getSafeArea($user_id,$smartCardId){
         $safeAreaData = $this->db
-        ->select('uid as id, safe_area_name, address, alert_on_exit, alert_on_entry, safe_area_radius,status')
+        ->select('
+                uid as safeAreaId,
+                safe_area_name as locationName,
+                address,
+                alert_on_exit,
+                alert_on_entry,
+                safe_area_radius as radius,
+                status as state
+            ')
         ->where('user_id', $user_id)
         ->get(table_safe_area);
         $safeAreaNumRow = $safeAreaData->num_rows();
@@ -337,23 +367,23 @@ class Eagle_model extends CI_Model {
 
         if($safeAreaNumRow > 0){
             foreach($safeAreaData as $key => $val){
-                if($safeAreaData[$key]['status'] == 'active'){
-                    $safeAreaData[$key]['status'] = true;
+                if($safeAreaData[$key]['state'] == 'active'){
+                    $safeAreaData[$key]['state'] = true;
                 }else{
-                    $safeAreaData[$key]['status'] = false;
+                    $safeAreaData[$key]['state'] = false;
                 }
 
                 if($safeAreaData[$key]['alert_on_exit'] == 1 && $safeAreaData[$key]['alert_on_entry'] == 1){
-                    $safeAreaData[$key]['alert_on'] = 'Entry & Exit';
+                    $safeAreaData[$key]['alertOn'] = 'Entry & Exit';
                 }
                 if($safeAreaData[$key]['alert_on_exit'] == 0 && $safeAreaData[$key]['alert_on_entry'] == 1){
-                    $safeAreaData[$key]['alert_on'] = 'Entry';
+                    $safeAreaData[$key]['alertOn'] = 'Entry';
                 }
                 if($safeAreaData[$key]['alert_on_exit'] == 1 && $safeAreaData[$key]['alert_on_entry'] == 0){
-                    $safeAreaData[$key]['alert_on'] = 'Exit';
+                    $safeAreaData[$key]['alertOn'] = 'Exit';
                 }
                 if($safeAreaData[$key]['alert_on_exit'] == 0 && $safeAreaData[$key]['alert_on_entry'] == 0){
-                    $safeAreaData[$key]['alert_on'] = 'No action found';
+                    $safeAreaData[$key]['alertOn'] = 'No action found';
                 }
                 unset($safeAreaData[$key]['alert_on_exit']);
                 unset($safeAreaData[$key]['alert_on_entry']);
