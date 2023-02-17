@@ -290,7 +290,9 @@ define('key_isActivated', 'isActivated');
 define('key_short_details', 'shortDetails');
 define('key_area_details' , 'areaDetails');
 define('key_is_saved', 'isSaved');
+define('key_location_details', 'locationDetails');
 ///////////////////////////////////////
+define('MAP_API_KEY', 'AIzaSyDCx7UqFSWYeSjVzcXbgBKB5nnarnHZWoM');
 
 define('constant_active','active');
 

@@ -5,6 +5,10 @@ use eaglenetra\RestServer\RestController;
 
 class Eagle extends RestController{
 
+    private $googleApiUrl = "https://maps.google.com/maps/api/";
+    private $googleApiGeocodeLibrary = "geocode";
+    private $googleApiReturnJsonDataType = "json";
+
     public function __construct(){
         header(header_allow_origin);
         header(header_allow_methods);
@@ -691,18 +695,51 @@ class Eagle extends RestController{
          
     }
 
+    
+    private function latLngToAddress(){ 
+        $resp = function($data){
+            $data_final = [
+                key_status              => $data[0],
+                key_message             => $data[1],
+                key_location_details    => $data[2]
+            ];
+            return $data_final;            
+        };
+        $googleApiUrl               = $this->googleApiUrl;
+        $googleApiLibrary           = $this->googleApiGeocodeLibrary;
+        $googleApiReturnDataType    = $this->googleApiReturnJsonDataType;
 
+        $lat         = (double)$this->input->get('lat');
+        $long        = (double)$this->input->get('long');
 
+        $url         = "{$googleApiUrl}{$googleApiLibrary}/{$googleApiReturnDataType}?latlng={$lat},{$long}&key=".MAP_API_KEY."&callback=initMap";
+        $geocode     = file_get_contents($url);
+        $json        = json_decode($geocode);
 
+        $status      = $json->status;
+        $results     = $json->results;
 
+        $successMsg  = ucwords("address found");
+        $errorMsg    = ucwords("something went wrong");
+        
+        if(empty($results)){
+            $response = [true, $errorMsg, ""];
+            return $this->final_response($resp,$response);  
+        }
+        
+        if(!array_key_exists(0, $results)){
+            $response = [true, $errorMsg, ""];
+            return $this->final_response($resp,$response);  
+        }
 
+        $results = (array)$results[0];
+        $address = (array_key_exists('formatted_address', $results)) ? $results['formatted_address'] : "";
 
-
-
-
-
-
-
+        $response = ($status == "OK") ? [true, $successMsg, $address] : [true, $errorMsg, ""];
+        // print_r($response);
+        // print_r($results);
+        return $this->final_response($resp,$response);        
+    }
 
 
 
@@ -813,10 +850,9 @@ class Eagle extends RestController{
         $this->response($response[DATA], $response[HTTP_STATUS]);
     }
 
-    
-
-
+    public function latlong_address_get(){
+        $response = $this->latLngToAddress();
+        $this->response($response[DATA], $response[HTTP_STATUS]);
+    }
 }
-
-
 ?>

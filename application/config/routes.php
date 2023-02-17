@@ -71,6 +71,7 @@ $route['user/safearea/(:any)/status']       = 'eagle/setSafeAreaStatus/$1';
 $route['smartcard/(:any)/location/insert']  = 'eagle/setLocation/$1';
 $route['smartcard/(:any)/location/show']    = 'eagle/getLocation/$1';
 $route['smartcard/(:any)/location/history'] = 'eagle/getLocationHistory/$1';
+$route['location/address']                  = 'eagle/latlong_address';
 $route['subscription/(:any)/buy/(:any)']    = 'eagle/setSubscription/$1/$2';
 $route['subscription/(:any)/status/update'] = 'eagle/setSubscriptionStatus/$1';
 $route['subscription/(:any)/status/show']   = 'eagle/getSubscriptionStatus/$1';
