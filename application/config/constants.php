@@ -211,6 +211,7 @@ define('text_invalid_pnone_number' , 'invalid_pnone_number');
 define('text_image_upload_failed', 'image_upload_failed');
 define('text_invalid_email', 'invaild_email');
 define('text_invalid_name', 'invalid_name');
+define('text_alert_status_not_given', 'alert_status_not_given');
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 define('http_ok', 200);

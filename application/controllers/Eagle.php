@@ -317,12 +317,17 @@ class Eagle extends RestController{
             $alertOnExit = $this->input->post(param_alert_on_exit);
             $alertOnEntry = $this->input->post(param_alert_on_entry);
 
+            if((empty($alertOnEntry) && empty($alertOnExit)) || ($alertOnEntry == "false" && $alertOnExit == "false")){
+                $message = $this->lang_message(text_alert_status_not_given);
+				$response = [true ,$message,  false ];
+				return $this->final_response($resp,$response);   
+            }
 			if(!preg_match('/^[A-Za-z]+([\ A-Za-z]+)*/', $safeAreaName)){
 				$message = $this->lang_message(text_invalid_name);
 				$response = [true ,$message,  false ];
 				return $this->final_response($resp,$response);   
 			}
-			if(!preg_match('/^[A-Za-z]+([\ A-Za-z]+)*/', $address)){
+			if(empty($address)){
 				$message = $this->lang_message(text_invalid_address);
 				$response = [true ,$message,  false ];
 				return $this->final_response($resp,$response);   
@@ -333,7 +338,7 @@ class Eagle extends RestController{
 				$response = [true ,$message,  false ];
 				return $this->final_response($resp,$response);
 			}
-			if(!preg_match('/^[0-9]*$/',$safeAreaRadius)){
+			if(empty($safeAreaRadius)){
 				$message = $this->lang_message(text_invalid_safe_area_radius);
 				$response = [true ,$message,  false ];
 				return $this->final_response($resp,$response);
@@ -494,6 +499,8 @@ class Eagle extends RestController{
 
         if($smartCardExists){
             $latLong = $this->Eagle_model->getLocationHistory($smartCardId);
+            // print_r($latLong);
+            // die();
             $response = [true, $this->lang_message(text_loaction_found), $latLong];
             return $this->final_response($resp,$response);  
         }
@@ -742,6 +749,35 @@ class Eagle extends RestController{
     }
 
 
+    private function getDeviceDetails(){
+        $resp = function($data){
+            $data_final = [
+                key_status => $data[0],
+                key_message => $data[1],
+                key_data => $data[2]
+            ];
+            return $data_final;            
+        };
+        $posId        = $this->input->get('posId');
+
+        if(!empty($posId)){
+            $this->initializeEagleModel();
+            
+            $deviceDetails = $this->Eagle_model->getDeviceDetails($posId);
+            $deviceDetails['devicedate'] = substr($deviceDetails['devicedate'], 0, strpos($deviceDetails['devicedate'], " "));
+            $deviceDetails['devicetime'] = substr($deviceDetails['devicetime'], 11, strpos($deviceDetails['devicetime'], " "));
+            $deviceDetails['devicetime'] = date('h:i:s a', strtotime($deviceDetails['devicetime']));
+            $deviceDetails['devicelocation'] = $deviceDetails['longitude'] . "," . $deviceDetails['latitude'];
+
+            unset($deviceDetails['longitude'] );
+            unset($deviceDetails['latitude'] );
+            $response = [true, 'true' , $deviceDetails];
+            return $this->final_response($resp,$response);
+        }
+        $response = [true, 'false' , ''];
+        return $this->final_response($resp,$response);
+    }
+
 
 
     public function  baseUrl_get(){
@@ -852,6 +888,11 @@ class Eagle extends RestController{
 
     public function latlong_address_get(){
         $response = $this->latLngToAddress();
+        $this->response($response[DATA], $response[HTTP_STATUS]);
+    }
+
+    public function getDeviceDetails_get(){
+        $response = $this->getDeviceDetails();
         $this->response($response[DATA], $response[HTTP_STATUS]);
     }
 }

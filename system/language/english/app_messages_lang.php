@@ -8,7 +8,7 @@ $lang[text_mobile_number_must_be_ten_digit] = 'Mobile number must be ten digit l
 
 $lang[text_otp_not_matched] = 'OTP not matched';
 $lang[text_otp_matched] = 'OTP matched';
-
+$lang[text_alert_status_not_given] = "alert status not given";
 $lang[text_user_already_exist] = 'user already exist';
 $lang[text_user_not_exist] = 'user does not exist';
 
@@ -70,3 +70,5 @@ $lang[text_invalid_price] = 'invalid price';
 $lang[text_subscription_data_found] = 'subscription data found';
 $lang[text_subscription_data_not_found] = 'subscription data not found';
 ?>
+
+

@@ -324,7 +324,7 @@ class Eagle_model extends CI_Model {
             'alert_on_exit'=> $alertOnExit,
             'alert_on_entry'=> $alertOnEntry,
             'address'=> $address,
-            'safe_area_radius'=> $safeAreaRadius
+            'safe_area_radius'=> (double)$safeAreaRadius
         );
         $insert = $this->db->insert(table_safe_area, $safeAreaData);
         return $safeAreaData;
@@ -332,7 +332,11 @@ class Eagle_model extends CI_Model {
 
     public function getUserDetails($user_id){
         $userData = $this->db
-        ->select('name , email, image, phone_number as number')
+        ->select('
+                name ,
+                email,
+                image as profileImage,
+                phone_number as mobile')
         ->where('uid', $user_id)
         ->get(table_user);
 
@@ -341,7 +345,7 @@ class Eagle_model extends CI_Model {
 
         if($userDataNumRow > 0){
             foreach($userData as $key => $val){
-                $userData[$key]['image'] = base_url($val['image']);
+                $userData[$key]['profileImage'] = base_url($val['profileImage']);
             }
             return $userData;
         }else{
@@ -447,12 +451,20 @@ class Eagle_model extends CI_Model {
 
     public function getLocationHistory($smartCardId){
         $getData  = $this->db
-                    ->select('uid as id , longitude ,latitude, created_on as added_on')
+                    ->select('uid as posId , longitude ,latitude, created_on as  postionalTime')
                     ->where('smart_card_id', $smartCardId)
                     ->order_by('created_on','desc')
                     ->get(table_location);
 
         $getData = $getData->result_array();
+        foreach($getData as $key => $val){
+            $getData[$key]['latLong '] = array(
+                                            "lat" => $val['longitude'],
+                                            "lng" => $val["latitude"]
+                                        );
+            unset($getData[$key]['longitude']);
+            unset($getData[$key]['latitude']);    
+        }
         return $getData;
     }
 
@@ -597,10 +609,43 @@ class Eagle_model extends CI_Model {
         $status = $status->result_array();
         return $status;
         
-        
     }
 
+    public function getDeviceDetails($posId){
 
+        // String name;
+        // String image;
+        // String devicedate;
+        // String devicetime;
+        // String devicelocation;
+        // String batteryperformance;
+        // String condition;
+        // String phone;
+
+        $device_details = $this->db
+                                ->select("
+                                    smart_card.name,
+                                    smart_card.profile_image as image,
+                                    smart_card.card_number as number,
+                                    location.created_on as devicedate,
+                                    location.created_on as devicetime,
+                                    location.longitude,
+                                    location.latitude
+                                ")
+                                ->from('smart_card')
+                                ->join('location', "location.smart_card_id = smart_card.uid")
+                                ->where('location.uid', $posId)
+                                ->order_by('location.created_on', 'DESC')
+                                ->get();
+
+        $device_details = $device_details->result_array();
+        $device_details =  $device_details[0];
+        $device_details['image'] = base_url($device_details['image']); 
+
+        return $device_details;
+       
+
+    }
 
 
 }
