@@ -365,6 +365,7 @@ class Eagle_model extends CI_Model {
                 status as state
             ')
         ->where('user_id', $user_id)
+        ->where('smart_card_id',$smartCardId)
         ->get(table_safe_area);
         $safeAreaNumRow = $safeAreaData->num_rows();
         $safeAreaData = $safeAreaData->result_array();
@@ -458,9 +459,11 @@ class Eagle_model extends CI_Model {
 
         $getData = $getData->result_array();
         foreach($getData as $key => $val){
-            $getData[$key]['latLong '] = array(
-                                            "lat" => $val['longitude'],
-                                            "lng" => $val["latitude"]
+            $postionalTime = $getData[$key]['postionalTime'];
+            $getData[$key]['postionalTime'] = (string)$postionalTime;
+            $getData[$key]['latLong'] = array(
+                                            "lat" => (double)$val['longitude'],
+                                            "lng" => (double)$val["latitude"]
                                         );
             unset($getData[$key]['longitude']);
             unset($getData[$key]['latitude']);    
@@ -626,11 +629,11 @@ class Eagle_model extends CI_Model {
                                 ->select("
                                     smart_card.name,
                                     smart_card.profile_image as image,
-                                    smart_card.card_number as number,
+                                    smart_card.card_number as phone,
                                     location.created_on as devicedate,
                                     location.created_on as devicetime,
-                                    location.longitude,
-                                    location.latitude
+                                    location.latitude as lat,
+                                    location.longitude as long
                                 ")
                                 ->from('smart_card')
                                 ->join('location', "location.smart_card_id = smart_card.uid")
@@ -639,9 +642,12 @@ class Eagle_model extends CI_Model {
                                 ->get();
 
         $device_details = $device_details->result_array();
+        
+        if(empty($device_details)){
+            return false;
+        }
         $device_details =  $device_details[0];
         $device_details['image'] = base_url($device_details['image']); 
-
         return $device_details;
        
 

@@ -417,12 +417,11 @@ class Eagle extends RestController{
             return $data_final;
         };
         $this->initializeEagleModel();
-        $KeyExists = $this->Eagle_model->keyExists($safeAreaId);
-        if($KeyExists){
-            $isActive = $this->Eagle_model->setSafeAreaStatus($safeAreaId); 
-            $response = [true , $this->lang_message(text_status_updated), $isActive];
-            return $this->final_response($resp,$response);
-        }
+ 
+        $isActive = $this->Eagle_model->setSafeAreaStatus($safeAreaId); 
+        $response = [true , $this->lang_message(text_status_updated), $isActive];
+        return $this->final_response($resp,$response);
+        
         $response = [true , $this->lang_message(text_user_not_exist), false];
         return $this->final_response($resp,$response);
     }
@@ -703,7 +702,7 @@ class Eagle extends RestController{
     }
 
     
-    private function latLngToAddress(){ 
+    private function latLngToAddress($lat, $long){ 
         $resp = function($data){
             $data_final = [
                 key_status              => $data[0],
@@ -714,37 +713,35 @@ class Eagle extends RestController{
         };
         $googleApiUrl               = $this->googleApiUrl;
         $googleApiLibrary           = $this->googleApiGeocodeLibrary;
-        $googleApiReturnDataType    = $this->googleApiReturnJsonDataType;
+        $googleApiReturnDataType    = $this->googleApiReturnJsonDataType;       
 
-        $lat         = (double)$this->input->get('lat');
-        $long        = (double)$this->input->get('long');
+        $url            = "{$googleApiUrl}{$googleApiLibrary}/{$googleApiReturnDataType}?latlng={$lat},{$long}&key=".MAP_API_KEY;
+        $geocode        = @file_get_contents($url);
+        
+        $json           = ($geocode) ? json_decode($geocode) : (object)[];
 
-        $url         = "{$googleApiUrl}{$googleApiLibrary}/{$googleApiReturnDataType}?latlng={$lat},{$long}&key=".MAP_API_KEY."&callback=initMap";
-        $geocode     = file_get_contents($url);
-        $json        = json_decode($geocode);
+        $status         = property_exists($json, 'status') ? $json->status : 'INVALID_REQUEST';
+        $results        = property_exists($json, 'results') ? $json->results : [];
 
-        $status      = $json->status;
-        $results     = $json->results;
-
-        $successMsg  = ucwords("address found");
-        $errorMsg    = ucwords("something went wrong");
+        $successMsg     = ucwords("address found");
+        $errorMsg       = ucwords("something went wrong");
+        $locationDetails = "INVALID_REQUEST";
         
         if(empty($results)){
-            $response = [true, $errorMsg, ""];
+            $response = [true, $errorMsg, $locationDetails];
             return $this->final_response($resp,$response);  
         }
         
         if(!array_key_exists(0, $results)){
-            $response = [true, $errorMsg, ""];
+            $response = [true, $errorMsg, $locationDetails];
             return $this->final_response($resp,$response);  
         }
 
         $results = (array)$results[0];
-        $address = (array_key_exists('formatted_address', $results)) ? $results['formatted_address'] : "";
+        $address = (array_key_exists('formatted_address', $results)) ? $results['formatted_address'] : $locationDetails;
 
-        $response = ($status == "OK") ? [true, $successMsg, $address] : [true, $errorMsg, ""];
-        // print_r($response);
-        // print_r($results);
+        $response = ($status == "OK") ? [true, $successMsg, $address] : [true, $errorMsg, $locationDetails];
+        
         return $this->final_response($resp,$response);        
     }
 
@@ -758,27 +755,37 @@ class Eagle extends RestController{
             ];
             return $data_final;            
         };
-        $posId        = $this->input->get('posId');
+        $posId = $this->input->get('posId');
 
         if(!empty($posId)){
             $this->initializeEagleModel();
-            
             $deviceDetails = $this->Eagle_model->getDeviceDetails($posId);
-            $deviceDetails['devicedate'] = substr($deviceDetails['devicedate'], 0, strpos($deviceDetails['devicedate'], " "));
+            // print_r($deviceDetails);
+            if(!$deviceDetails){
+                $response = [true, 'Position id not found' , ''];
+                return $this->final_response($resp,$response);
+            }
+            $lat = $deviceDetails['lat'];
+            $long = $deviceDetails['long']; 
+            $address = $this->latLngToAddress($lat, $long);
+
+            // $deviceDetails['devicedate'] = substr($deviceDetails['devicedate'],  0, strpos($deviceDetails['devicedate'], " "));
+            $deviceDetails['devicedate'] = strtotime($deviceDetails['devicedate']);
+            $deviceDetails['devicedate'] = date("jS F Y", $deviceDetails['devicedate']);
             $deviceDetails['devicetime'] = substr($deviceDetails['devicetime'], 11, strpos($deviceDetails['devicetime'], " "));
             $deviceDetails['devicetime'] = date('h:i:s a', strtotime($deviceDetails['devicetime']));
-            $deviceDetails['devicelocation'] = $deviceDetails['longitude'] . "," . $deviceDetails['latitude'];
+            $deviceDetails['devicelocation'] = $address['data']['locationDetails'];
+            $deviceDetails['batteryperformance'] = "";
+            $deviceDetails['condition'] = "";
 
-            unset($deviceDetails['longitude'] );
-            unset($deviceDetails['latitude'] );
+            unset($deviceDetails['long']);
+            unset($deviceDetails['lat']);
             $response = [true, 'true' , $deviceDetails];
             return $this->final_response($resp,$response);
         }
-        $response = [true, 'false' , ''];
+        $response = [true, 'Wrong position id given' , ''];
         return $this->final_response($resp,$response);
     }
-
-
 
     public function  baseUrl_get(){
         $response = $this->baseUrl();
@@ -836,7 +843,9 @@ class Eagle extends RestController{
         $this->response($response[DATA], $response[HTTP_STATUS]);
     }
 
-    public function setSafeAreaStatus_post($safeAreaId){
+    public function setSafeAreaStatus_get(){
+        $safeAreaId = $this->input->get('safeAreaId');
+
         $response = $this->setSafeAreaStatus($safeAreaId);
         $this->response($response[DATA], $response[HTTP_STATUS]);
     }
@@ -887,7 +896,9 @@ class Eagle extends RestController{
     }
 
     public function latlong_address_get(){
-        $response = $this->latLngToAddress();
+        $lat         = (double)$this->input->get('lat');
+        $long        = (double)$this->input->get('long');
+        $response = $this->latLngToAddress($lat, $long);
         $this->response($response[DATA], $response[HTTP_STATUS]);
     }
 
