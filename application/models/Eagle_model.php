@@ -402,10 +402,15 @@ class Eagle_model extends CI_Model {
 
     public function setSafeAreaStatus($safeAreaId){
         $status = $this->db
-        ->select('status')
-        ->where('uid',$safeAreaId)
-        ->get(table_safe_area);
+                    ->select('status')
+                    ->where('uid',$safeAreaId)
+                    ->get(table_safe_area);
         $status = $status->result_array();
+        
+        if(empty($status)){
+            return 'notUpdated';
+        }
+
         $status = $status[0]['status'];
        
         if($status == 'active'){
@@ -413,13 +418,13 @@ class Eagle_model extends CI_Model {
                         ->set('status','deactive')
                         ->where('uid',$safeAreaId)
                         ->update(table_safe_area);
-            return false;
+            return 'deactive';
         }else{
             $q = $this->db
                         ->set('status','active')
                         ->where('uid',$safeAreaId)
                         ->update(table_safe_area);
-            return true;
+            return 'active';
         }       
     }
 
@@ -452,18 +457,55 @@ class Eagle_model extends CI_Model {
 
     public function getLocationHistory($smartCardId){
         $getData  = $this->db
-                    ->select('uid as posId , longitude ,latitude, created_on as  postionalTime')
-                    ->where('smart_card_id', $smartCardId)
-                    ->order_by('created_on','desc')
-                    ->get(table_location);
+                        ->select('uid as posId , longitude ,latitude, created_on as  postionalTime')
+                        ->where('smart_card_id', $smartCardId)
+                        ->order_by('created_on','desc')
+                        ->get(table_location);
 
         $getData = $getData->result_array();
         foreach($getData as $key => $val){
             $postionalTime = $getData[$key]['postionalTime'];
             $getData[$key]['postionalTime'] = (string)$postionalTime;
+
+            $getData[$key]['postionalTime'] = substr( $getData[$key]['postionalTime'], 11, strpos( $getData[$key]['postionalTime'], " "));
+            // $getData[$key]['postionalTime'] = date('h:i:s a', strtotime( $getData[$key]['postionalTime']));
             $getData[$key]['latLong'] = array(
-                                            "lat" => (double)$val['longitude'],
-                                            "lng" => (double)$val["latitude"]
+                                            "lat" => (double)$val["latitude"],
+                                            "lng" => (double)$val['longitude']
+                                        );
+            unset($getData[$key]['longitude']);
+            unset($getData[$key]['latitude']);    
+        }
+        return $getData;
+    }
+
+    public function getLocationBetweenTime($smartCardId, $date, $startTime, $endTime){
+
+        $d1 = $date." ".$startTime;
+        $d2 = $date." ".$endTime;
+
+        // echo $d1 . '||' .$d2;
+        // die();
+
+        $getData = $this->db
+                        ->select('uid as posId , longitude ,latitude, created_on as  postionalTime')
+                        ->where('smart_card_id', $smartCardId)
+                        ->where('created_on >=', $d1)
+                        ->where('created_on <=', $d2)
+                        ->order_by('created_on','DESC')
+                        ->get(table_location);
+
+        $getData = $getData->result_array();
+
+        foreach($getData as $key => $val){
+            $postionalTime = $getData[$key]['postionalTime'];
+            // $getData[$key]['postionalTime'] = (string)$postionalTime;
+
+            // $getData[$key]['postionalTime'] = substr( $getData[$key]['postionalTime'], 11, strpos( $getData[$key]['postionalTime'], " "));
+            // $getData[$key]['postionalTime'] = date('h:i:s', strtotime( $getData[$key]['postionalTime']));
+            $getData[$key]['latLong'] = array(
+                                            "lat" => (double)$val["latitude"],
+                                            "lng" => (double)$val['longitude']
                                         );
             unset($getData[$key]['longitude']);
             unset($getData[$key]['latitude']);    
@@ -549,10 +591,7 @@ class Eagle_model extends CI_Model {
 
         $packageActive = $packageActive->num_rows();
 
-        if($packageActive > 0){
-            return true;
-        }
-        return false;
+        return $packageActive > 0 ? true : false;
     }
 
     public function setSubscription($smartCardId,$package_id){
@@ -616,14 +655,6 @@ class Eagle_model extends CI_Model {
 
     public function getDeviceDetails($posId){
 
-        // String name;
-        // String image;
-        // String devicedate;
-        // String devicetime;
-        // String devicelocation;
-        // String batteryperformance;
-        // String condition;
-        // String phone;
 
         $device_details = $this->db
                                 ->select("
@@ -638,7 +669,6 @@ class Eagle_model extends CI_Model {
                                 ->from('smart_card')
                                 ->join('location', "location.smart_card_id = smart_card.uid")
                                 ->where('location.uid', $posId)
-                                ->order_by('location.created_on', 'DESC')
                                 ->get();
 
         $device_details = $device_details->result_array();

@@ -399,7 +399,10 @@ class Eagle extends RestController{
 
         if($userExists && $smartCardExists){
             $safeAreaData = $this->Eagle_model->getSafeArea($user_id,$smartCardId);
-
+            if(empty($safeAreaData)){
+                $response = [true , $this->lang_message(text_no_record_found), ""];
+                return $this->final_response($resp,$response);
+            }
             $response = [true , $this->lang_message(text_user_exist), $safeAreaData];
             return $this->final_response($resp,$response);
         }
@@ -419,11 +422,19 @@ class Eagle extends RestController{
         $this->initializeEagleModel();
  
         $isActive = $this->Eagle_model->setSafeAreaStatus($safeAreaId); 
-        $response = [true , $this->lang_message(text_status_updated), $isActive];
-        return $this->final_response($resp,$response);
-        
-        $response = [true , $this->lang_message(text_user_not_exist), false];
-        return $this->final_response($resp,$response);
+
+        if($isActive == "notUpdated"){
+            $response = [true , $this->lang_message(text_invalid_id), false];
+            return $this->final_response($resp,$response);
+        }
+        if($isActive == "active"){
+            $response = [true , $this->lang_message(text_status_updated), true];
+            return $this->final_response($resp,$response);
+        }       
+        if($isActive == "deactive"){
+            $response = [true , $this->lang_message(text_status_updated), false];
+            return $this->final_response($resp,$response);
+        } 
     }
 
     private function setLocation($smartCardId){
@@ -506,6 +517,33 @@ class Eagle extends RestController{
         $response = [true, $this->lang_message(text_loaction_not_found), null];
         return $this->final_response($resp,$response);  
         
+    }
+
+    private function getLocationBetweenTime($smartCardId, $date, $startTime, $endTime){
+        $resp = function($data){
+            $data_final = [
+                key_status => $data[0],
+                key_message => $data[1],
+                key_latlongData => $data[2]
+            ];
+            return $data_final;
+        };
+        $this->initializeEagleModel();
+
+        $smartCardExists = $this->Eagle_model->smartCardExists($smartCardId);
+
+        if($smartCardExists){
+            $locationDetails = $this->Eagle_model->getLocationBetweenTime($smartCardId, $date, $startTime, $endTime);
+            if(empty($locationDetails)){
+                $response = [true, $this->lang_message(text_loaction_not_found), []];
+                return $this->final_response($resp,$response);  
+            }
+            $response = [true, $this->lang_message(text_loaction_found), $locationDetails];
+            return $this->final_response($resp,$response);   
+        }
+        $response = [true, $this->lang_message(text_loaction_not_found), []];
+        return $this->final_response($resp,$response);  
+
     }
 
     private function addSecondaryParent($user_id){
@@ -599,12 +637,12 @@ class Eagle extends RestController{
         };
         $this->initializeEagleModel();
         $getData = $this->Eagle_model->getPackages();
-        if($getData){
-            $message = $getData ? $this->lang_message(text_record_found) : $this->lang_message(text_no_record_found);
-            $response = [true, $message, $getData];
+        
+        if(empty($getData)){
+            $response = [true, $this->lang_message(text_no_package_found), []];
             return $this->final_response($resp,$response);
         }
-        $response = [true, $this->lang_message(text_no_record_found),false];
+        $response = [true, $this->lang_message(text_record_found), $getData];
         return $this->final_response($resp,$response);
     }
 
@@ -701,7 +739,6 @@ class Eagle extends RestController{
          
     }
 
-    
     private function latLngToAddress($lat, $long){ 
         $resp = function($data){
             $data_final = [
@@ -745,7 +782,6 @@ class Eagle extends RestController{
         return $this->final_response($resp,$response);        
     }
 
-
     private function getDeviceDetails(){
         $resp = function($data){
             $data_final = [
@@ -773,7 +809,7 @@ class Eagle extends RestController{
             $deviceDetails['devicedate'] = strtotime($deviceDetails['devicedate']);
             $deviceDetails['devicedate'] = date("jS F Y", $deviceDetails['devicedate']);
             $deviceDetails['devicetime'] = substr($deviceDetails['devicetime'], 11, strpos($deviceDetails['devicetime'], " "));
-            $deviceDetails['devicetime'] = date('h:i:s a', strtotime($deviceDetails['devicetime']));
+            $deviceDetails['devicetime'] = date('h:i a', strtotime($deviceDetails['devicetime']));
             $deviceDetails['devicelocation'] = $address['data']['locationDetails'];
             $deviceDetails['batteryperformance'] = "";
             $deviceDetails['condition'] = "";
@@ -783,15 +819,36 @@ class Eagle extends RestController{
             $response = [true, 'true' , $deviceDetails];
             return $this->final_response($resp,$response);
         }
-        $response = [true, 'Wrong position id given' , ''];
+        $response = [true, 'Wrong position id given' , []];
         return $this->final_response($resp,$response);
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
     public function  baseUrl_get(){
         $response = $this->baseUrl();
         $this->response($response[DATA], $response[HTTP_STATUS]);
     }
-    
 
     public function  getSubscriptionStatus_get($smartCardId){
         $response = $this->getSubscriptionStatus($smartCardId);
@@ -843,8 +900,8 @@ class Eagle extends RestController{
         $this->response($response[DATA], $response[HTTP_STATUS]);
     }
 
-    public function setSafeAreaStatus_get(){
-        $safeAreaId = $this->input->get('safeAreaId');
+    public function setSafeAreaStatus_post(){
+        $safeAreaId = $this->input->post('safeAreaId');
 
         $response = $this->setSafeAreaStatus($safeAreaId);
         $this->response($response[DATA], $response[HTTP_STATUS]);
@@ -895,6 +952,7 @@ class Eagle extends RestController{
         $this->response($response[DATA], $response[HTTP_STATUS]);
     }
 
+
     public function latlong_address_get(){
         $lat         = (double)$this->input->get('lat');
         $long        = (double)$this->input->get('long');
@@ -905,6 +963,20 @@ class Eagle extends RestController{
     public function getDeviceDetails_get(){
         $response = $this->getDeviceDetails();
         $this->response($response[DATA], $response[HTTP_STATUS]);
+    }
+
+    public function getLocationBetweenTime_get(){
+        $smartCardId = $this->input->get('smartCardId');   
+        $startTime = $this->input->get('startTime');   
+        $endTime = $this->input->get('endTime');   
+        $date = $this->input->get('date');
+
+        $startTime = $startTime .":00";
+        $endTime = $endTime .":00";
+
+        $response = $this->getLocationBetweenTime($smartCardId,$date, $startTime, $endTime);
+        $this->response($response[DATA], $response[HTTP_STATUS]);
+
     }
 }
 ?>

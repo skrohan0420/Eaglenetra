@@ -53,6 +53,27 @@ $route['default_controller'] = 'Eagle';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
+// $route['baseurl']                               = 'eagle/baseUrl';
+// $route['splashdata']                            = 'eagle/splashScreen';
+// $route['signin']                                = 'eagle/signIn';
+// $route['otp']                                   = 'eagle/validateOtp';
+// $route['smartcard/(:any)']                      = 'eagle/addSmartCardDetails/$1';
+// $route['smartcard/(:any)']                      = 'eagle/getKidsData/$1';
+// $route['get_details/user/(:any)']               = 'eagle/getUserDetails/$1';
+// $route['insert_details/user/(:any)']            = 'eagle/completeRegistration/$1';
+// $route['insert_details/user_secondary/(:any)']  = 'eagle/addSecondaryParent/$1';
+// $route['safearea_details/user/(:any)/(:any)']   = 'eagle/getSafeArea/$1/$2';
+// $route['safearea_details/user/(:any)/(:any)']   = 'eagle/setSafeArea/$1/$2';
+// $route['safearea/status']                       = 'eagle/setSafeAreaStatus';
+// $route['location/(:any)']                       = 'eagle/setLocation/$1';
+// $route['location/current/(:any)']               = 'eagle/getLocation/$1';
+// $route['device/details']                        = 'eagle/getDeviceDetails';
+// $route['location/history/smart_card/(:any)']    = 'eagle/getLocationHistory/$1';
+// $route['location/address']                      = 'eagle/latlong_address';
+// $route['subscription/buy/(:any)/(:any)']        = 'eagle/setSubscription/$1/$2';
+// $route['subscription/status/(:any)']            = 'eagle/setSubscriptionStatus/$1';
+// $route['subscription/status/(:any)']            = 'eagle/getSubscriptionStatus/$1'
+// $route['package/(:any)']                        = 'eagle/getSinglePackage/$1';
 
 
 
@@ -77,11 +98,15 @@ $route['subscription/(:any)/buy/(:any)']        = 'eagle/setSubscription/$1/$2';
 $route['subscription/(:any)/status/update']     = 'eagle/setSubscriptionStatus/$1';
 $route['subscription/(:any)/status/show']       = 'eagle/getSubscriptionStatus/$1';
 $route['package/(:any)']                        = 'eagle/getSinglePackage/$1';
+$route['packages']                             = 'eagle/getPackages';
+
+$route['location/date/history']                 = 'eagle/getLocationBetweenTime'
 
 
-// --------- NOT WORKING --------- //
-//   | | | | | | | | | | | | | |   //
-//  \:/:\:/:\:/:\/:\:/:\:/:\:/:\:/ //
+
+//  -------- NOT WORKING ---------  //
+//   |   |   |   |   |   |   |   |  //
+//  \:/:\:/:\:/:\:/:\:/:\:/:\:/:\:/ //
 
 
 // $route['package/insert']                    = 'eagle/addPackage';

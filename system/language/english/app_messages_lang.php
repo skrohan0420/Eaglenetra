@@ -41,7 +41,7 @@ $lang[text_safe_area_added] = 'safe area added';
 $lang[text_loaction_updated] = 'loaction updated';
 $lang[text_device_id_not_found] = 'device id not found';
 $lang[text_loaction_found] = 'loaction found';
-$lang[text_loaction_not_found] = 'loaction found';
+$lang[text_loaction_not_found] = 'loaction not found';
 $lang[text_loaction_not_updated] = 'loaction not updated';
 $lang[text_new_guardian_added] = 'new guardian added';
 $lang[text_all_feilds_are_required] = 'all feilds are required';
@@ -50,6 +50,7 @@ $lang[text_loaction_not_inserted] = 'loaction not inserted';
 $lang[text_details_added] ='details added';
 $lang[text_details_not_added]='details not added';
 $lang[text_status_updated] = 'status updated';
+$lang[text_status_not_updated] = 'status not updated';
 $lang[text_allready_subscribed] = 'allready subscribed';
 $lang[text_subscribed_successfully] = 'subscribed successfully';
 $lang[text_cannot_subscribe] = 'cannot subscribe';
@@ -60,6 +61,7 @@ $lang[text_invalid_pnone_number] = 'invalid pnone number';
 $lang[text_image_upload_failed] = 'image upload failed';
 $lang[text_invalid_email] = 'invalid email';
 $lang[text_invalid_name] = 'invalid name';
+$lang[text_invalid_id] = 'invalid id';
 $lang[text_invalid_card_number] = 'invalid card number';
 $lang[text_invalid_coordinates] = 'invalid coordinates';
 $lang[text_invalid_safe_area_radius] = 'invalid safe area radius';
@@ -69,6 +71,5 @@ $lang[text_invalid_validity] = 'invalid validity';
 $lang[text_invalid_price] = 'invalid price';
 $lang[text_subscription_data_found] = 'subscription data found';
 $lang[text_subscription_data_not_found] = 'subscription data not found';
+$lang[text_no_package_found] = 'no package found';
 ?>
-
-

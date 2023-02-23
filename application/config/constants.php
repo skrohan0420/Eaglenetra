@@ -119,6 +119,7 @@ define('table_packages', 'packages');
 define('table_subscriptions', 'subscriptions');
 //////////////////////////////////////////////////////////
 define('key_baseurl', 'baseUrl');
+define('key_latlongData', 'latlongData');
 define('key_inserted','inserted');
 define('key_status', 'status');
 define('key_message','message');
@@ -169,6 +170,7 @@ define('text_number_required', 'number_required');
 define('text_user_exist', 'user_exist');
 define('text_user_id_required', 'user_id_required');
 define('text_user_id_not_matched', 'user_id_not_matched');
+define('text_no_package_found', 'no_package_found');
 define('text_new_user','new user');
 define('text_safe_area_name_required', 'safe_area_name_required');
 define('text_longitude_required', 'longitude_required');
@@ -188,6 +190,7 @@ define('text_loaction_inserted', 'text_loaction_inserted');
 define('text_loaction_not_inserted', 'text_loaction_not_inserted');
 define('text_image_required' , 'image_required');
 define('text_status_updated', 'status_updated');
+define('text_status_not_updated', 'status_not_updated');
 define('text_allready_subscribed', 'allready_subscribed');
 define('text_subscribed_successfully' , 'subscribed_successfully');
 define('text_cannot_subscribe' , 'cannot_subscribe');
@@ -212,6 +215,7 @@ define('text_image_upload_failed', 'image_upload_failed');
 define('text_invalid_email', 'invaild_email');
 define('text_invalid_name', 'invalid_name');
 define('text_alert_status_not_given', 'alert_status_not_given');
+define('text_invalid_id', 'ivalid id');
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 define('http_ok', 200);
