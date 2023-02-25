@@ -177,7 +177,6 @@ class Eagle_model extends CI_Model {
         return $status == "ACTIVE"  ? true : false ;
     }
 
-
     public function addSmartCardDetails($name, $user_id, $cardNumber, $deviceId, $class, $age, $numbers, $img){
         
         $smartCardId = 'SMARTCARD_'. $this->new_uid();
@@ -527,14 +526,15 @@ class Eagle_model extends CI_Model {
         return false;
     }
     
-    public function addSecondaryParent($name, $number, $relationship){
-        $uid = 'USER_'.$this->new_uid();
+    public function addSecondaryParent($user_id,$name, $number, $relationship, $base_img){
+        $uid = 'USER_SECONDARY_'.$this->new_uid();
         $parentData = [
             'uid' => $uid,
+            'user_id' => $user_id,
             'name' => $name,
             'phone_number' => $number,
             'relationship' => $relationship,
-            'user_type' => 'user_secondary'
+            'image' => $base_img,
         ];
         $otpData = [
             'uid' => 'OTP_'.$this->new_uid(),
@@ -542,7 +542,7 @@ class Eagle_model extends CI_Model {
             'otp' =>  $this->newotp(),
         ];
 
-        $addUser = $this->db->insert(table_user, $parentData);
+        $addUser = $this->db->insert(table_secondary_user, $parentData);
         $addOtp = $this->db->insert(table_otp, $otpData);
 
         if($addOtp && $addUser){
@@ -550,6 +550,23 @@ class Eagle_model extends CI_Model {
         }
         return false;
     }
+
+    public function getSecondaryParent($user_id){
+        $data = $this->db
+                    ->select('name ,image , relationship as relationName')
+                    ->from('secondary_user')
+                    ->where('user_id', $user_id)
+                    ->get();
+        $data = $data->result_array();
+
+        
+        foreach($data as $key => $val){
+            $data[$key]['image'] = base_url($data[$key]['image']);
+        }
+        return $data; 
+
+
+    } 
 
     public function addPackage($price, $validity){
         $pkgData = [
@@ -683,6 +700,16 @@ class Eagle_model extends CI_Model {
 
     }
 
+
+    public function getSupportDetails(){
+        $data = $this->db
+                    ->select('number , email')
+                    ->from('support')
+                    ->get();
+
+        $data = $data->result_array();
+        return $data;
+    }
 
 }
 ?>

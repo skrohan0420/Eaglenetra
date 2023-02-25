@@ -551,16 +551,32 @@ class Eagle extends RestController{
             $data_final = [
                 key_status => $data[0],
                 key_message => $data[1],
-                key_inserted => $data[2]
+                key_isAdded => $data[2]
             ];
             return $data_final;            
         };
+
+        $this->initializeEagleModel();
+        
+        $path = 'assets';
+
+        if($this->do_upload($path, file_profile_image)){
+
+            $img = $path .'/'. $this->upload->data(filename);
+            
+        }else{
+            $message = $this->lang_message(text_image_upload_failed);
+            $response = [true, $message, false];
+            return $this->final_response($resp,$response);
+        }
+
         $this->initializeEagleModel(); 
         $number = $this->input->post(param_number);
         $name = $this->input->post(param_name);
         $relationship = $this->input->post(param_relationship);
         $userExists =  $this->Eagle_model->userExists($user_id);
         $numberExists = $this->Eagle_model->numberExists($number);
+        $base_img =  $img;
 		if(!preg_match("/^[6-9]\d{9}$/", $number)){
 			$message =  $this->lang_message(text_invalid_pnone_number);    
 			$response = [true , $message , false];
@@ -588,12 +604,36 @@ class Eagle extends RestController{
             $response = [true, $this->lang_message(text_user_already_exist),false];
             return $this->final_response($resp,$response);
         }
-        $addDetails = $this->Eagle_model->addSecondaryParent($name, $number, $relationship);
+        $addDetails = $this->Eagle_model->addSecondaryParent($user_id,$name, $number, $relationship,$base_img);
         $message = $addDetails ? $this->lang_message(text_details_added) : $this->lang_message(text_details_not_added);
         $response = [true,$message,$addDetails];
         return $this->final_response($resp,$response);
     }
     
+    private function getSecondaryParent($user_id){
+        $resp = function($data){
+            $data_final = [
+                key_status => $data[0],
+                key_message => $data[1],
+                key_accessDetails  => $data[2]
+            ];
+            return $data_final;            
+        };
+
+        $this->initializeEagleModel();
+        $userExists = $this->Eagle_model->userExists($user_id);
+
+        if($userExists){
+            $data = $this->Eagle_model->getSecondaryParent($user_id);
+            $message = empty($data) ? $this->lang_message(text_no_record_found) : $this->lang_message(text_record_found); 
+            $data = empty($data) ? false : $data;
+            $response = [true,$message,$data];
+            return $this->final_response($resp,$response);           
+        }
+        $response = [true, $this->lang_message(text_user_not_exist),false];
+        return $this->final_response($resp,$response);
+    }
+
     private function addPackage(){
         $resp = function($data){
             $data_final = [
@@ -823,6 +863,27 @@ class Eagle extends RestController{
         return $this->final_response($resp,$response);
     }
 
+    private function getSupportDetails(){
+        $resp = function($data){
+            $data_final = [
+                key_status => $data[0],
+                key_message => $data[1],
+                key_data => $data[2]
+            ];
+            return $data_final;            
+        };        
+
+        $this->initializeEagleModel();
+
+        $data = $this->Eagle_model->getSupportDetails();
+
+        $message = empty($data) ? $this->lang_message(text_no_record_found) : $this->lang_message(text_record_found); 
+        $data = empty($data) ? false : $data;
+        $response = [true,$message,$data[0]];
+        return $this->final_response($resp,$response);
+
+    }
+    
 
 
 
@@ -842,8 +903,10 @@ class Eagle extends RestController{
 
 
 
-
-
+    public function getSupportDetails_get(){
+        $response = $this->getSupportDetails();
+        $this->response($response[DATA], $response[HTTP_STATUS]);
+    } 
     
     public function  baseUrl_get(){
         $response = $this->baseUrl();
@@ -882,6 +945,12 @@ class Eagle extends RestController{
 
     public function addSecondaryParent_post($user_id){
         $response = $this->addSecondaryParent($user_id);
+        $this->response($response[DATA], $response[HTTP_STATUS]);
+    }
+
+    public function  getSecondaryParent_get(){
+        $userId = $this->input->get('userId'); 
+        $response = $this->getSecondaryParent($userId);
         $this->response($response[DATA], $response[HTTP_STATUS]);
     }
 

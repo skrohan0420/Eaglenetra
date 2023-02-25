@@ -98,7 +98,7 @@ $route['subscription/(:any)/buy/(:any)']        = 'eagle/setSubscription/$1/$2';
 $route['subscription/(:any)/status/update']     = 'eagle/setSubscriptionStatus/$1';
 $route['subscription/(:any)/status/show']       = 'eagle/getSubscriptionStatus/$1';
 $route['package/(:any)']                        = 'eagle/getSinglePackage/$1';
-$route['packages']                             = 'eagle/getPackages';
+$route['packages']                              = 'eagle/getPackages';
 
 $route['location/date/history']                 = 'eagle/getLocationBetweenTime'
 
