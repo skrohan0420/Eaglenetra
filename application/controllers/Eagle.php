@@ -129,33 +129,50 @@ class Eagle extends RestController{
                 key_userStatus => $isRegistered ? 'REGISTERED': 'UNREGISTERED',
                 key_message => $data[1],
                 key_userId =>  $data[2] == null ? "" :$data[2],
-                key_isVerified => $data[3]
+                key_isVerified => $data[3],
+                key_details => $data[4]
             ];
             return $data_final;
         };
         $this->initializeEagleModel();
         $number = $this->input->get(query_param_phone_number);
         $otp = $this->input->get(query_param_otp);
-        $isRegistered = $this->Eagle_model->isUserExists($number, $otp);
+        
 		if(!preg_match("/^[6-9]\d{9}$/", $number)){
-			$message =  $this->lang_message(text_invalid_pnone_number);    
-			$response = [false , $message ,'', false];
+            $message =  $this->lang_message(text_invalid_pnone_number);    
+			$response = [false , $message ,'', false , false];
 			return $this->final_response($resp,$response);
 		}
-       
-        
+
+        $isRegistered = $this->Eagle_model->isUserExists($number, $otp);
+        if(!empty($isRegistered)){
+            $uid = $this->Eagle_model->getUserId($number, $otp);
+
+            $details = $this->Eagle_model->registrationDetails($uid);
+            if(!empty($details)){
+                foreach($details as $key => $val){
+                    $details[$key]['image'] = base_url($details[$key]['image']);
+                }
+            }
+            $result = $this->Eagle_model->validateOtp($number,$otp);
+            $otp = $this->Eagle_model->getOtp($number); 
+            $otp = empty($otp[0]['otp']) ? "" : $otp[0]['otp'];
+            $message = '';
+            $message = $result ? $this->lang_message(text_otp_matched) : $this->lang_message(text_otp_not_matched).'. Your otp is '.$otp;
+            $isVerified = $message == "OTP matched" ? true : false;
+            $response = [true ,$this->lang_message(text_otp_matched), $result, $isVerified, $details];
+            return $this->final_response($resp,$response);
+        }      
         $result = $this->Eagle_model->validateOtp($number,$otp);
         $otp = $this->Eagle_model->getOtp($number);
-        // print_r($otp);
-        // die();
-
-        $otp = $otp[0]['otp'];
-
+        $otp = empty($otp[0]['otp']) ? "" : $otp[0]['otp'];
         $message = '';
         $message = $result ? $this->lang_message(text_otp_matched) : $this->lang_message(text_otp_not_matched).'. Your otp is '.$otp;
         $isVerified = $message == "OTP matched" ? true : false;
-        $response = [true , $message, $result, $isVerified];
+        $response = [false , $message ,'', false , false];
         return $this->final_response($resp,$response);
+        
+        
     }
 
     private function completeRegistration($id){
@@ -884,6 +901,40 @@ class Eagle extends RestController{
 
     }
     
+    private function getKidsDetails($user_id){
+        $resp = function($data){
+            $data_final = [
+                key_status => $data[0],
+                key_message => $data[1],
+                key_short_details => $data[2]
+            ];
+            return $data_final;
+        };
+
+        $this->initializeEagleModel();
+
+        
+        $userExists = $this->Eagle_model->userExists($user_id);
+        if($userExists){
+            $data = $this->Eagle_model->registrationDetails($user_id);
+
+            foreach($data as $key => $val){
+                $latLong = $this->Eagle_model->getLocationHistory($data[$key]['smartCardId']);
+
+                $data[$key]['latLong'] =  $latLong;
+                $data[$key]['image'] = base_url($data[$key]['image']);
+            }
+
+            $response = [true, $this->lang_message(text_loaction_found),$data];
+            return $this->final_response($resp,$response);
+        }
+        $response = [true,$this->lang_message(text_loaction_not_found),false];
+        return $this->final_response($resp,$response);
+
+
+    }
+
+
 
 
 
@@ -1047,5 +1098,15 @@ class Eagle extends RestController{
         $this->response($response[DATA], $response[HTTP_STATUS]);
 
     }
+
+    public function getKidsDetails_get(){
+        $user_id = $this->input->get('userId');
+
+        $response = $this->getKidsDetails($user_id);
+        $this->response($response[DATA], $response[HTTP_STATUS]);
+    }
+
+
+
 }
 ?>

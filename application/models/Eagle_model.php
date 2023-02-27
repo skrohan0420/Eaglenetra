@@ -104,6 +104,39 @@ class Eagle_model extends CI_Model {
         return $otp;
     }
 
+    public function getUserId($number, $otp){
+        $uid = $this->db
+                    ->select('user.uid')
+                    ->from('user')
+                    ->join('otp', 'otp.user_id = user.uid')
+                    ->where('otp.otp' , $otp)
+                    ->where('user.phone_number', $number)
+                    ->get();
+
+        $uid = $uid->result_array();
+
+        return empty($uid[0]) ? false : $uid[0]['uid'];
+
+    }
+
+    public function registrationDetails($uid){
+        $details = $this->db
+                        ->select('
+                            smart_card.uid as smartCardId,
+                            smart_card.name,
+                            smart_card.age,
+                            smart_card.class as clsName,
+                            smart_card.profile_image as image,
+                            smart_card.created_at as activateFrom,
+                            smart_card.device_id  deviceId
+                        ')
+                        ->from('smart_card')
+                        ->where('smart_card.user_id', $uid)
+                        ->get();
+        $details = $details->result_array();
+        return empty($details) ? false : $details;
+    }
+
     public function completeRegistration($name,$email,$trackingFor,$id,$base_img){
         $trackingForId = $this->db->select('uid as id')->where('tracking_for',$trackingFor)->get(table_tracking_for);
 

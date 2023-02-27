@@ -120,6 +120,7 @@ define('table_packages', 'packages');
 define('table_subscriptions', 'subscriptions');
 //////////////////////////////////////////////////////////
 define('key_baseurl', 'baseUrl');
+define("key_details", "details");
 define('key_latlongData', 'latlongData');
 define('key_inserted','inserted');
 define('key_status', 'status');
@@ -218,6 +219,7 @@ define('text_invalid_email', 'invaild_email');
 define('text_invalid_name', 'invalid_name');
 define('text_alert_status_not_given', 'alert_status_not_given');
 define('text_invalid_id', 'ivalid id');
+
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 define('http_ok', 200);
