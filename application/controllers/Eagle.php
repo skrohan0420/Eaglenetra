@@ -1074,8 +1074,8 @@ class Eagle extends RestController{
 
 
     public function latlong_address_get(){
-        $lat         = (double)$this->input->get('lat');
-        $long        = (double)$this->input->get('long');
+        $lat      = (double)$this->input->get('lat');
+        $long     = (double)$this->input->get('long');
         $response = $this->latLngToAddress($lat, $long);
         $this->response($response[DATA], $response[HTTP_STATUS]);
     }
@@ -1087,14 +1087,14 @@ class Eagle extends RestController{
 
     public function getLocationBetweenTime_get(){
         $smartCardId = $this->input->get('smartCardId');   
-        $startTime = $this->input->get('startTime');   
-        $endTime = $this->input->get('endTime');   
-        $date = $this->input->get('date');
+        $startTime   = $this->input->get('startTime');   
+        $endTime     = $this->input->get('endTime');   
+        $date        = $this->input->get('date');
 
         $startTime = $startTime .":00";
-        $endTime = $endTime .":00";
+        $endTime   = $endTime .":00";
+        $response  = $this->getLocationBetweenTime($smartCardId,$date, $startTime, $endTime);
 
-        $response = $this->getLocationBetweenTime($smartCardId,$date, $startTime, $endTime);
         $this->response($response[DATA], $response[HTTP_STATUS]);
 
     }
