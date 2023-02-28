@@ -159,8 +159,7 @@ class Eagle extends RestController{
             $otp = empty($otp[0]['otp']) ? "" : $otp[0]['otp'];
             $message = '';
             $message = $result ? $this->lang_message(text_otp_matched) : $this->lang_message(text_otp_not_matched).'. Your otp is '.$otp;
-            $isVerified = $message == "OTP matched" ? true : false;
-            $response = [true ,$this->lang_message(text_otp_matched), $result, $isVerified, $details];
+            $response = [true ,$this->lang_message(text_otp_matched), $result, true, $details];
             return $this->final_response($resp,$response);
         }      
         $result = $this->Eagle_model->validateOtp($number,$otp);
@@ -168,8 +167,7 @@ class Eagle extends RestController{
         $otp = empty($otp[0]['otp']) ? "" : $otp[0]['otp'];
         $message = '';
         $message = $result ? $this->lang_message(text_otp_matched) : $this->lang_message(text_otp_not_matched).'. Your otp is '.$otp;
-        $isVerified = $message == "OTP matched" ? true : false;
-        $response = [false , $message ,'', false , false];
+        $response = [false , $message ,'', true , null];
         return $this->final_response($resp,$response);
         
         
@@ -919,7 +917,22 @@ class Eagle extends RestController{
             $data = $this->Eagle_model->registrationDetails($user_id);
 
             foreach($data as $key => $val){
-                $latLong = $this->Eagle_model->getLocationHistory($data[$key]['smartCardId']);
+                $latLong = $this->Eagle_model->getLocation($data[$key]['smartCardId']);
+                if($latLong){
+                    $latLong['postionalTime'] = $latLong['added_on'];
+                    $latLong['posId'] = $latLong['id'];
+                    $latLong['latLong']['lat'] = $latLong['latitude'];
+                    $latLong['latLong']['long'] = $latLong['longitude'];
+
+
+
+                    unset($latLong['latitude']);
+                    unset($latLong['longitude']);
+                    unset($latLong['added_on']);
+                    unset($latLong['id']);
+                }
+                
+                
 
                 $data[$key]['latLong'] =  $latLong;
                 $data[$key]['image'] = base_url($data[$key]['image']);

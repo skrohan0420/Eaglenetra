@@ -483,8 +483,7 @@ class Eagle_model extends CI_Model {
                     ->get(table_location);
 
         $getData = $getData->result_array();
-        $getData = $getData[0];
-        return $getData;
+        return empty($getData[0]) ? null : $getData[0];
     }
 
     public function getLocationHistory($smartCardId){
