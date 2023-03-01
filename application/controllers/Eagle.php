@@ -119,6 +119,7 @@ class Eagle extends RestController{
     }
 
     private function vaidateOtp(){
+       
         $resp = function($data){
             $this->initializeEagleModel();
             $number = $this->input->get(query_param_phone_number);
@@ -128,7 +129,7 @@ class Eagle extends RestController{
                 key_status => $data[0],
                 key_userStatus => $isRegistered ? 'REGISTERED': 'UNREGISTERED',
                 key_message => $data[1],
-                key_userId =>  $data[2] == null ? "" :$data[2],
+                key_userId =>  $data[2] == null ? '' :$data[2],
                 key_isVerified => $data[3],
                 key_details => $data[4]
             ];
@@ -137,16 +138,17 @@ class Eagle extends RestController{
         $this->initializeEagleModel();
         $number = $this->input->get(query_param_phone_number);
         $otp = $this->input->get(query_param_otp);
-        
+        $uid = $this->Eagle_model->getUserId($number, $otp);
+        $uid = $uid == null ? "" :$uid ;
+
 		if(!preg_match("/^[6-9]\d{9}$/", $number)){
             $message =  $this->lang_message(text_invalid_pnone_number);    
-			$response = [false , $message ,'', false , false];
+			$response = [true , $message ,'', false , null];
 			return $this->final_response($resp,$response);
 		}
 
         $isRegistered = $this->Eagle_model->isUserExists($number, $otp);
         if(!empty($isRegistered)){
-            $uid = $this->Eagle_model->getUserId($number, $otp);
 
             $details = $this->Eagle_model->registrationDetails($uid);
             if(!empty($details)){
@@ -157,9 +159,7 @@ class Eagle extends RestController{
             $result = $this->Eagle_model->validateOtp($number,$otp);
             $otp = $this->Eagle_model->getOtp($number); 
             $otp = empty($otp[0]['otp']) ? "" : $otp[0]['otp'];
-            $message = '';
-            $message = $result ? $this->lang_message(text_otp_matched) : $this->lang_message(text_otp_not_matched).'. Your otp is '.$otp;
-            $response = [true ,$this->lang_message(text_otp_matched), $result, true, $details];
+            $response = [true ,$this->lang_message(text_otp_matched), $uid, true , $details];
             return $this->final_response($resp,$response);
         }      
         $result = $this->Eagle_model->validateOtp($number,$otp);
@@ -167,7 +167,8 @@ class Eagle extends RestController{
         $otp = empty($otp[0]['otp']) ? "" : $otp[0]['otp'];
         $message = '';
         $message = $result ? $this->lang_message(text_otp_matched) : $this->lang_message(text_otp_not_matched).'. Your otp is '.$otp;
-        $response = [false , $message ,'', true , null];
+        $isVerified = $result ? true : false;
+        $response = [$isVerified , $message ,$uid,  true , null];
         return $this->final_response($resp,$response);
         
         
@@ -382,7 +383,7 @@ class Eagle extends RestController{
             $data_final = [
                 key_status => $data[0],
                 key_message => $data[1],
-                key_data => $data[2]
+                key_shortprofile => $data[2]
             ];
             return $data_final;
         };
@@ -415,7 +416,7 @@ class Eagle extends RestController{
         if($userExists && $smartCardExists){
             $safeAreaData = $this->Eagle_model->getSafeArea($user_id,$smartCardId);
             if(empty($safeAreaData)){
-                $response = [true , $this->lang_message(text_no_record_found), ""];
+                $response = [true , $this->lang_message(text_no_safe_area_found), null];
                 return $this->final_response($resp,$response);
             }
             $response = [true , $this->lang_message(text_user_exist), $safeAreaData];
@@ -921,8 +922,8 @@ class Eagle extends RestController{
                 if($latLong){
                     $latLong['postionalTime'] = $latLong['added_on'];
                     $latLong['posId'] = $latLong['id'];
-                    $latLong['latLong']['lat'] = $latLong['latitude'];
-                    $latLong['latLong']['long'] = $latLong['longitude'];
+                    $latLong['latLong']['lat'] = (double)$latLong['latitude'];
+                    $latLong['latLong']['lng'] = (double)$latLong['longitude'];
 
 
 

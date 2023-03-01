@@ -115,7 +115,7 @@ class Eagle_model extends CI_Model {
 
         $uid = $uid->result_array();
 
-        return empty($uid[0]) ? false : $uid[0]['uid'];
+        return empty($uid[0]) ? null : $uid[0]['uid'];
 
     }
 
@@ -320,7 +320,7 @@ class Eagle_model extends CI_Model {
                             smart_card.class as clsName,
                             smart_card.profile_image as image,
                             smart_card.created_at as activateFrom,
-                            smart_card.device_id,
+                            smart_card.device_id as deviceId,
                             subscriptions.expiry_date as expiryDate
                         ')
                     ->from(table_smart_card)

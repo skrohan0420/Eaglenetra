@@ -12,7 +12,7 @@ $lang[text_alert_status_not_given] = "alert status not given";
 $lang[text_user_already_exist] = 'user already exist';
 $lang[text_user_not_exist] = 'user does not exist';
 
-
+$lang[text_no_safe_area_found] = 'No Safe Area found';
 $lang[text_base_url_found_successfully] = 'base url found successfully';
 $lang[text_registration_successfull] = 'registration successfull';
 $lang[text_registration_failed] = 'registration failed';
