@@ -391,7 +391,7 @@ class Eagle extends RestController{
         $userExists = $this->Eagle_model->userExists($user_id);
         if($userExists){
             $userData = $this->Eagle_model->getUserDetails($user_id);
-            $response = [true , $this->lang_message(text_record_found), $userData[0] ];
+            $response = [true , $this->lang_message(text_record_found), $userData[0]];
             return $this->final_response($resp,$response);
         }
         $response = [true , $this->lang_message(text_user_not_exist), null];
@@ -933,10 +933,14 @@ class Eagle extends RestController{
                     unset($latLong['id']);
                 }
                 
-                
-
+                // $data[$key]['activateFrom'] = date("jS F Y", strtotime($data[$key]['activateFrom']));
+                // $data[$key]['expireDate'] = date("jS F Y",strtotime("2024-03-01 15:01:40"));
+                $data[$key]['rechargeAmount'] = "₹350";
+                $data[$key]['expireDate'] = "2024-03-01 15:01:40";
                 $data[$key]['latLong'] =  $latLong;
                 $data[$key]['image'] = base_url($data[$key]['image']);
+
+
             }
 
             $response = [true, $this->lang_message(text_loaction_found),$data];

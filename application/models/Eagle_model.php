@@ -127,8 +127,8 @@ class Eagle_model extends CI_Model {
                             smart_card.age,
                             smart_card.class as clsName,
                             smart_card.profile_image as image,
-                            smart_card.created_at as activateFrom,
-                            smart_card.device_id  deviceId
+                            smart_card.device_id  deviceId,
+                            smart_card.created_at as activateFrom
                         ')
                         ->from('smart_card')
                         ->where('smart_card.user_id', $uid)
@@ -321,7 +321,7 @@ class Eagle_model extends CI_Model {
                             smart_card.profile_image as image,
                             smart_card.created_at as activateFrom,
                             smart_card.device_id as deviceId,
-                            subscriptions.expiry_date as expiryDate
+                            subscriptions.expiry_date as expireDate
                         ')
                     ->from(table_smart_card)
                     ->join(table_subscriptions, 'subscriptions.smart_card_id = smart_card.uid', 'left')
