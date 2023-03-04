@@ -642,11 +642,11 @@ class Eagle extends RestController{
         if($userExists){
             $data = $this->Eagle_model->getSecondaryParent($user_id);
             $message = empty($data) ? $this->lang_message(text_no_record_found) : $this->lang_message(text_record_found); 
-            $data = empty($data) ? false : $data;
+            $data = empty($data) ? null : $data;
             $response = [true,$message,$data];
             return $this->final_response($resp,$response);           
         }
-        $response = [true, $this->lang_message(text_user_not_exist),false];
+        $response = [true, $this->lang_message(text_user_not_exist),null];
         return $this->final_response($resp,$response);
     }
 
